@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自我教育 · 在不确定中学会成长</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1c1410;
+    --ink-light: #4a3f35;
+    --paper: #faf6ef;
+    --paper-warm: #f5ede0;
+    --rust: #b05a2a;
+    --rust-light: #d4845a;
+    --sage: #7a8c6e;
+    --sage-light: #a8b89a;
+    --gold: #c49a3c;
+    --gold-light: #e8c878;
+    --blush: #d4967a;
+    --line: rgba(28,20,16,0.12);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', serif;
+    line-height: 1.9;
+    overflow-x: hidden;
+  }
+
+  /* 纹理背景 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* Cover */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    padding: 60px 40px 50px;
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+  }
+
+  .cover-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(176,90,42,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 85% 10%, rgba(122,140,110,0.2) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(196,154,60,0.08) 0%, transparent 70%);
+  }
+
+  .cover-deco {
+    position: absolute;
+    top: 0; right: 0;
+    width: 45%;
+    height: 100%;
+    opacity: 0.06;
+    background: repeating-linear-gradient(
+      -45deg,
+      #fff 0px,
+      #fff 1px,
+      transparent 1px,
+      transparent 20px
+    );
+  }
+
+  .cover-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .cover-circle:nth-child(1) { width: 500px; height: 500px; top: -150px; right: -100px; }
+  .cover-circle:nth-child(2) { width: 300px; height: 300px; bottom: 100px; right: 150px; border-color: rgba(196,154,60,0.15); }
+  .cover-circle:nth-child(3) { width: 180px; height: 180px; top: 40%; left: 5%; border-color: rgba(122,140,110,0.2); }
+
+  .cover-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 800px;
+  }
+
+  .cover-label {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 1s 0.3s forwards;
+  }
+
+  .cover-title {
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 300;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 1s 0.5s forwards;
+  }
+
+  .cover-title em {
+    font-style: normal;
+    color: var(--gold-light);
+    display: block;
+  }
+
+  .cover-subtitle {
+    font-size: clamp(15px, 2.5vw, 20px);
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    margin-top: 16px;
+    margin-bottom: 50px;
+    max-width: 560px;
+    opacity: 0;
+    animation: fadeUp 1s 0.7s forwards;
+  }
+
+  .cover-line {
+    width: 60px;
+    height: 2px;
+    background: var(--rust-light);
+    margin-bottom: 50px;
+    opacity: 0;
+    animation: fadeUp 1s 0.9s forwards;
+  }
+
+  .cover-quote {
+    font-size: 14px;
+    color: rgba(255,255,255,0.4);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    max-width: 440px;
+    opacity: 0;
+    animation: fadeUp 1s 1.1s forwards;
+  }
+
+  .cover-footer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards;
+  }
+
+  .cover-nav {
+    display: flex;
+    gap: 28px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .cover-scroll {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.2em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .scroll-line {
+    width: 40px;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Main content */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+  }
+
+  /* Pull quote / opener */
+  .opener {
+    margin-bottom: 80px;
+    padding: 50px 0;
+    border-top: 2px solid var(--rust);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  .opener::before {
+    content: '\201C';
+    font-family: 'Playfair Display', serif;
+    font-size: 120px;
+    color: var(--rust);
+    opacity: 0.15;
+    position: absolute;
+    top: -10px;
+    left: -20px;
+    line-height: 1;
+  }
+
+  .opener p {
+    font-size: clamp(20px, 3vw, 26px);
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink);
+  }
+
+  .opener em {
+    font-style: normal;
+    color: var(--rust);
+    font-weight: 500;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 72px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .section.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .section-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    color: var(--rust);
+    opacity: 0.2;
+    line-height: 1;
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: clamp(18px, 2.5vw, 23px);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .section-title span {
+    display: block;
+    font-size: 12px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    color: var(--rust-light);
+    letter-spacing: 0.3em;
+    margin-bottom: 4px;
+  }
+
+  .section p {
+    font-size: 16px;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    line-height: 1.95;
+  }
+
+  .section p:last-child { margin-bottom: 0; }
+
+  /* Highlight box */
+  .highlight {
+    background: var(--paper-warm);
+    border-left: 3px solid var(--rust);
+    padding: 24px 28px;
+    margin: 32px 0;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .highlight p {
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 0;
+    font-style: italic;
+  }
+
+  /* Quality grid */
+  .qualities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .quality-card {
+    padding: 24px 20px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .quality-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(28,20,16,0.08);
+    border-color: var(--rust-light);
+  }
+
+  .quality-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .quality-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .quality-desc {
+    font-size: 12px;
+    font-family: 'Noto Sans SC', sans-serif;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  /* Pull quote */
+  .pull-quote {
+    margin: 48px -20px;
+    padding: 40px 40px;
+    background: var(--ink);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pull-quote::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(176,90,42,0.3), transparent 60%);
+  }
+
+  .pull-quote p {
+    font-size: clamp(18px, 2.5vw, 22px);
+    font-weight: 300;
+    line-height: 1.75;
+    color: rgba(255,255,255,0.9);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0;
+  }
+
+  .pull-quote em {
+    font-style: normal;
+    color: var(--gold-light);
+  }
+
+  /* Special Dark section */
+  .alaya-section {
+    background: linear-gradient(135deg, #1c1410 0%, #2d2018 100%);
+    color: #fff;
+    padding: 48px 40px;
+    margin: 48px -20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .alaya-section::after {
+    content: '自我教育';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 80px;
+    font-weight: 700;
+    font-family: 'Noto Serif SC', serif;
+    color: rgba(255,255,255,0.03);
+    pointer-events: none;
+    letter-spacing: 0.1em;
+  }
+
+  .alaya-section .section-title {
+    color: #fff;
+  }
+
+  .alaya-section .section-title span {
+    color: var(--blush);
+  }
+
+  .alaya-section p {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .alaya-section .section-num {
+    color: var(--blush);
+    opacity: 0.4;
+  }
+
+  .alaya-cards {
+    display: grid;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .alaya-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .alaya-card-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .alaya-card-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 4px;
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  .alaya-card-text {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.7;
+  }
+
+  /* Closing */
+  .closing {
+    margin-top: 80px;
+    padding-top: 60px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .closing-ornament {
+    font-size: 32px;
+    margin-bottom: 28px;
+    display: block;
+    opacity: 0.4;
+  }
+
+  .closing-text {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink);
+    max-width: 560px;
+    margin: 0 auto 32px;
+  }
+
+  .closing-text em {
+    font-style: normal;
+    color: var(--rust);
+    font-weight: 500;
+  }
+
+  .closing-sign {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 12px;
+    color: var(--ink-light);
+    letter-spacing: 0.3em;
+    opacity: 0.6;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+    opacity: 0.3;
+  }
+
+  .divider-line { flex: 1; height: 1px; background: var(--ink); }
+  .divider-dot { width: 4px; height: 4px; background: var(--rust); border-radius: 50%; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .cover { padding: 40px 24px 36px; }
+    .main { padding: 48px 24px 80px; }
+    .pull-quote, .alaya-section { margin: 32px -10px; padding: 32px 24px; }
+    .qualities { grid-template-columns: repeat(2, 1fr); }
+    .opener::before { font-size: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-bg"></div>
+  <div class="cover-deco"></div>
+  <div class="cover-circle"></div>
+  <div class="cover-circle"></div>
+  <div class="cover-circle"></div>
+
+  <div class="cover-content">
+    <p class="cover-label">家庭教育 · 自我教育 · AI时代</p>
+    <h1 class="cover-title">
+      自我教育
+      <em>在不确定中学会成长</em>
+    </h1>
+    <p class="cover-subtitle">当父母把一切都安排好时，孩子是否也获得了安排自己人生的能力？</p>
+    <div class="cover-line"></div>
+    <p class="cover-quote">"真正的教育是自我教育。"</p>
+  </div>
+
+  <div class="cover-footer">
+    <div class="cover-nav">
+      <span>规划悖论</span>
+      <span>AI挑战</span>
+      <span>自主空间</span>
+    </div>
+    <div class="cover-scroll">
+      <div class="scroll-line"></div>
+      <span>向下阅读</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Opener -->
+  <div class="opener">
+    <p>从早期阅读到兴趣培养，从时间管理到生涯规划，今天的父母比以往任何时候都更加重视孩子的成长。他们希望替孩子多想一些、多做一些，让孩子少走弯路，在激烈的竞争中获得更多机会。<em>这份用心值得理解。</em></p>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">一</span>
+      <h2 class="section-title">
+        <span>The Overlooked Question</span>
+        一个容易被忽略的问题
+      </h2>
+    </div>
+    <p>当父母把孩子成长中的大事小事都安排得井井有条，孩子是否也在这个过程中，逐渐获得了安排自己人生的能力？</p>
+    <p>一个孩子可以在父母的督促下完成学习，在周密的计划中取得成绩，也可以在遇到困难时迅速得到大人的帮助。但如果有一天，原来的计划失效了，熟悉的经验不再适用，也没有人能够直接告诉他下一步该怎么走，他是否依然知道如何寻找方向？</p>
+    <p>这才是家庭教育中一个容易被忽略的问题。</p>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- Section 2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">二</span>
+      <h2 class="section-title">
+        <span>True Education</span>
+        真正的教育是自我教育
+      </h2>
+    </div>
+    <p>苏霍姆林斯基曾提出，真正的教育是自我教育。教育的目的，并不是让孩子永远处在外部的指导之下，而是帮助他逐渐形成自我完善的意识与能力。</p>
+    <p>从这个意义上说，家庭教育最重要的任务，不只是帮助孩子走好眼前的路，更是让他逐渐具备独立选择方向、面对困难和调整自己的能力。</p>
+    
+    <div class="highlight">
+      <p>在许多家庭里，父母已经习惯于为孩子的成长制定一套完整的方案：什么时候学习，什么时候休息，应该培养什么兴趣，遇到挫折应该如何调整，未来选择什么学校、什么专业，甚至从事什么职业，都可能被提前纳入规划。</p>
+    </div>
+
+    <p>父母希望通过充分的准备，为孩子创造更好的条件。这当然没有错。问题在于，当越来越多的事情被提前安排，孩子自己思考、选择和承担后果的空间，是否也在不知不觉中被挤压了？</p>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- Section 3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">三</span>
+      <h2 class="section-title">
+        <span>The Anxiety Behind Planning</span>
+        规划背后的焦虑
+      </h2>
+    </div>
+    <p>如果把过度介入简单归结为父母控制欲强，显然不够公平。</p>
+    <p>今天的父母之所以焦虑，很大程度上是因为他们面对着真实的竞争压力。升学路径、考试成绩和教育资源，对许多家庭而言依然是影响孩子未来的重要因素。在这样的环境里，不充分规划似乎就意味着增加风险，适度放手甚至可能被理解为不负责任。</p>
+    <p>于是，父母越来越希望通过安排来降低不确定性：多学一点，也许就多一种机会；提前纠正一个问题，也许就少一次失败；替孩子选择一条更稳妥的路，也许就能避免未来的遗憾。</p>
+    <p>规划因此不仅成为一种教育手段，也成为父母对抗焦虑的方式。</p>
+  </div>
+
+  <!-- Pull Quote -->
+  <div class="pull-quote section" id="pq">
+    <p>然而，这里面存在一个悖论：父母越是担心孩子未来缺乏竞争力，就越想把成长过程中的不确定性消除掉；而当他们不断替孩子排除风险、选择方向、解决问题时，也可能削弱孩子日后独自面对不确定性的能力。<em>父母试图替孩子规避人生的不确定性，却可能让孩子失去应对不确定性的练习。</em></p>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">四</span>
+      <h2 class="section-title">
+        <span>Where Real Ability Grows</span>
+        真正重要的能力从何而来
+      </h2>
+    </div>
+    <p>因为真正重要的能力，往往不是在一切安排妥当时形成的，而是在计划被打乱、努力没有结果、选择出现偏差时逐渐长出来的。一个人需要经历判断、尝试、反思与调整，才能慢慢学会面对复杂的处境。</p>
+    
+    <div class="qualities">
+      <div class="quality-card">
+        <span class="quality-icon">🧭</span>
+        <div class="quality-name">判断力</div>
+        <div class="quality-desc">在信息模糊时仍能作出选择</div>
+      </div>
+      <div class="quality-card">
+        <span class="quality-icon">🔄</span>
+        <div class="quality-name">调整力</div>
+        <div class="quality-desc">计划失效后重新寻找路径</div>
+      </div>
+      <div class="quality-card">
+        <span class="quality-icon">🌱</span>
+        <div class="quality-name">承受力</div>
+        <div class="quality-desc">在失败与偏差中继续前行</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- Section 5: AI Era -->
+  <div class="section alaya-section" id="s5">
+    <div class="section-header">
+      <span class="section-num">五</span>
+      <h2 class="section-title">
+        <span>The AI Challenge</span>
+        AI时代的新挑战
+      </h2>
+    </div>
+    <p>AI带来的最大挑战之一，不只是它能够替人完成多少工作，更在于它正在改变我们面对未来的方式。</p>
+    <p>传统工业社会的许多组织方式，强调标准化、分工、重复和可预测性。在相当多的情境中，人们可以通过掌握一套相对稳定的知识与技能，沿着既定的职业和发展路径逐步积累经验。教育也因此容易形成一种清晰的逻辑：学好规定的知识，掌握标准的方法，通过考试进入下一阶段，再凭借积累的能力走向未来。</p>
+    <p>但AI时代正在使这种逻辑面临新的挑战。</p>
+
+    <div class="alaya-cards">
+      <div class="alaya-card">
+        <span class="alaya-card-icon">📉</span>
+        <div>
+          <div class="alaya-card-title">价值在变化</div>
+          <div class="alaya-card-text">知识和技能的价值可能发生变化，工作的内容与边界可能重新划分，过去行之有效的经验也未必能够解决新的问题。</div>
+        </div>
+      </div>
+      <div class="alaya-card">
+        <span class="alaya-card-icon">❓</span>
+        <div>
+          <div class="alaya-card-title">路径不确定</div>
+          <div class="alaya-card-text">我们越来越难以确定，今天为孩子规划好的道路，几年后是否依然适用；今天被视为重要的能力，未来是否仍然具有同样的价值。</div>
+        </div>
+      </div>
+    </div>
+
+    <p>当技术和社会持续变化时，单纯依靠既定路径、固定知识和成熟经验来规划未来，已经不足以应对所有问题。</p>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- Section 6 -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">六</span>
+      <h2 class="section-title">
+        <span>Why Self-Education Matters</span>
+        自我教育在AI时代的意义
+      </h2>
+    </div>
+    <p>这正是自我教育在AI时代的重要意义。未来真正重要的是一个人能否在变化中持续学习，在迷茫中寻找方向，在不确定中作出判断，并在必要时重新塑造自己。</p>
+    <p>而这些能力，很难仅仅通过父母替孩子提前规划好一切来培养。这也是为什么，家庭教育需要为孩子保留适当的自主空间。让他作出一些力所能及的选择，经历一些可以承受的失败，尝试不同的方法，并在结果与预期不同时重新思考。</p>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-dot"></div><div class="divider-line"></div></div>
+
+  <!-- Section 7 -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">七</span>
+      <h2 class="section-title">
+        <span>A Test for Parents</span>
+        对父母自身的考验
+      </h2>
+    </div>
+    <p>这对父母自身也是一种考验。</p>
+    <p>我们不仅要学习如何教育孩子，也要学习如何面对自己的焦虑，如何接受孩子与自己可能有不同的想法，如何在无法完全掌控未来的情况下，仍然给予孩子信任。</p>
+    <p>一个不断自我反思、愿意调整自己、能够面对困难而不轻易放弃的父母，本身就是一种有力量的教育。孩子从父母身上学到的，不仅是那些反复强调的道理，更是父母如何生活、如何选择，以及如何面对不确定性。</p>
+  </div>
+
+  <!-- Closing -->
+  <div class="closing section" id="closing">
+    <span class="closing-ornament">✦</span>
+    <p class="closing-text">
+      真正的教育是自我教育。<em>为孩子保留适当的自主空间</em>，让他在不确定中学会判断、尝试与调整，<em>种子才会真正长成自己的样子</em>。
+    </p>
+    <p class="closing-sign">· 自我教育 · 在不确定中学会成长 ·</p>
+  </div>
+
+</main>
+
+<script>
+  // Intersection Observer 滚动渐入效果
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
